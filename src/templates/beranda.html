@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=
+  , initial-scale=1.0"
+    />
+    <!-- <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+      integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css"
+      rel="stylesheet"
+    /> -->
+    <title>Register</title>
+  </head>
+  <body>
+    <!-- Modal -->
+    <div
+      onclick="toggleInsertModal()"
+      id="modal-overlay"
+      
+    ></div>
+    <div
+      id="insert-modal"
+      
+    >
+      <h3 >
+        Insert GPT Conversation
+      </h3>
+      <form action="/insert" method="post">
+        <div>
+            <label for="title" >Conversation Title</label>
+            <input 
+            type="text"
+            name="title"
+            id="title"
+            placeholder="Example"
+              required />
+        </div>
+        <div>
+            <label for="link" >Conversation Title</label>
+            <input 
+            type="text"
+            name="link"
+            id="link"
+            placeholder="https://example.com"
+             required />
+        </div>
+        <div>
+          <button
+            type="submit"
+            
+          >
+            Save
+          </button>
+        </div>
+      </form>
+    </div>
+    <div>
+      <nav
+        
+      >
+        <div >
+          <div >
+            <div >
+              <button
+                data-drawer-target="logo-sidebar"
+                data-drawer-toggle="logo-sidebar"
+                aria-controls="logo-sidebar"
+                type="button"
+                
+              >
+                <span >Open sidebar</span>
+                <svg
+                  
+                  aria-hidden="true"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    clip-rule="evenodd"
+                    fill-rule="evenodd"
+                    d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"
+                  ></path>
+                </svg>
+              </button>
+              <a href="/" >
+                <span
+                  
+                  >GPT Archive</span
+                >
+              </a>
+            </div>
+            <div >
+              <div >
+                <div>
+                  <button
+                    type="button"
+                    
+                    aria-expanded="false"
+                    data-dropdown-toggle="dropdown-user"
+                  >
+                    <span>Open user menu</span>
+                    <span >
+                      {{user['username'][0]}}
+                    </span>
+                  </button>
+                </div>
+                <div
+                  
+                  id="dropdown-user"
+                >
+                  <div  role="none">
+                    <p
+                      
+                      role="none"
+                    >
+                      {{user['username']}}
+                    </p>
+                  </div>
+                  <ul class="py-1" role="none">
+                    <li>
+                      <a
+                        href="/logout"
+                        
+                        role="menuitem"
+                        >Sign out</a
+                      >
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <aside
+        id="logo-sidebar"
+        
+        aria-label="Sidebar"
+      >
+        <div >
+          <button
+          onclick="toggleInsertModal()"
+          type="button"
+          
+        >
+          New Conversation
+        </button>
+          <ul class="space-y-2 font-medium">
+            <!-- Conversations -->
+             {% for curr_conv in conversations %}
+            <li>
+              <a
+                href="/conversations/{{ curr_conv['conversation_id'] }}"
+                
+              >
+                <span class="ms-3 line-clamp-1">
+                  {{curr_conv['title']}}
+                </span>
+              </a>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </aside>
+
+      <div >
+        <div
+          
+        >
+          <div >
+          <!-- Main content -->
+           {% if home %}
+              <!-- Fallback text -->
+              <div >
+                <h4 >GPT Archive</h4>
+                <p>
+                  Select one conversation on the left side, or save new conversation.
+                </p>
+              </div>
+            {% else %}
+
+              <!-- Content -->
+              <div
+                
+              >
+                {% for text in conversation['text'] %}
+                <section >
+                  <div >
+                    {{text['user']}}
+                  </div>
+                </section>
+                <section >
+                  <div >
+                    {{text['assistant']}}
+                  </div>
+                </section>
+                {%endfor%}
+              </div>
+
+            {% endif %}
+        </div>
+      </div>
+    </div>
+    <script src="/data/script.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script> -->
+  </body>
+</html>

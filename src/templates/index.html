@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>GPT Scraper</title>
+  </head>
+  <body>
+    <!--  Insert Modal  -->
+    <div onclick="toggleInsertModal()" id="modal-overlay"></div>
+    <div id="insert-modal">
+      <h3>Insert GPT Conversation</h3>
+      <form action="/insert" method="post">
+        <div>
+          <input type="text" name="title" id="title" placeholder="Title" />
+        </div>
+        <div>
+          <input type="text" name="link" id="link" placeholder="Link" />
+        </div>
+        <div>
+          <button type="submit">Save</button>
+        </div>
+      </form>
+    </div>
+
+    <div>
+      <!-- Sidebar -->
+      <div>
+        <button onclick="toggleInsertModal()" type="button">
+          New Conversation
+        </button>
+        <ul class="flex flex-col gap-2">
+          {% for curr_conv in conversations %}
+          <li>
+            <a href="/conversations/{{ curr_conv['conversation_id'] }}">
+              {{curr_conv['title']}}
+            </a>
+            <button id="conv-action-btn-{{curr_conv['conversation_id']}}">
+              :
+            </button>
+            <div id="conv-action-modal-{{curr_conv['conversation_id']}}">
+              <ul>
+                <li>
+                  <button>Rename</button>
+                </li>
+                <li>
+                  <button>Delete</button>
+                </li>
+              </ul>
+            </div>
+            <div
+              id="conv-action-modal-overlay-{{curr_conv['conversation_id']}}"
+            ></div>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <!-- Main content -->
+      <main>
+        {% if home %}
+        <!-- Fallback text -->
+        <div>
+          <h4>GPT Scraper</h4>
+          <p>
+            Select one conversation on the left side, or save new conversation.
+          </p>
+        </div>
+        {% else %}
+
+        <!-- Content -->
+        <div>
+          {% for text in conversation['text'] %}
+          <section>
+            <div>{{text['user']}}</div>
+          </section>
+          <section>
+            <div>{{text['assistant']}}</div>
+          </section>
+          {%endfor%}
+        </div>
+
+        {% endif %}
+      </main>
+    </div>
+    <footer>
+      <p>Copyright (c) 2025 Ahmad Wildan Putro Santoso</p>
+    </footer>
+    <script src="/data/script.js"></script>
+  </body>
+</html>
