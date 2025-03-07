@@ -7,19 +7,7 @@
       content="width=
   , initial-scale=1.0"
     />
-    <!-- <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
-      integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    />
-    <link
-      href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css"
-      rel="stylesheet"
-    /> -->
-    <title>Register</title>
+    <title>Beranda</title>
   </head>
   <body>
     <!-- Modal -->
@@ -33,11 +21,11 @@
       
     >
       <h3 >
-        Insert GPT Conversation
+        Insert GPT Link Share
       </h3>
       <form action="/insert" method="post">
         <div>
-            <label for="title" >Conversation Title</label>
+            <label for="title" >GPT Title</label>
             <input 
             type="text"
             name="title"
@@ -46,7 +34,7 @@
               required />
         </div>
         <div>
-            <label for="link" >Conversation Title</label>
+            <label for="link" >GPT Link</label>
             <input 
             type="text"
             name="link"
@@ -59,7 +47,7 @@
             type="submit"
             
           >
-            Save
+            GO
           </button>
         </div>
       </form>
@@ -96,7 +84,7 @@
               <a href="/" >
                 <span
                   
-                  >GPT Archive</span
+                  >GPT Scraper</span
                 >
               </a>
             </div>
@@ -109,7 +97,7 @@
                     aria-expanded="false"
                     data-dropdown-toggle="dropdown-user"
                   >
-                    <span>Open user menu</span>
+                    <span>Menu</span>
                     <span >
                       {{user['username'][0]}}
                     </span>
@@ -155,7 +143,7 @@
           type="button"
           
         >
-          New Conversation
+          New Scrape
         </button>
           <ul class="space-y-2 font-medium">
             <!-- Conversations -->
@@ -184,9 +172,9 @@
            {% if home %}
               <!-- Fallback text -->
               <div >
-                <h4 >GPT Archive</h4>
+                <h4 >GPT Scraper</h4>
                 <p>
-                  Select one conversation on the left side, or save new conversation.
+                  Select one scrape on the left side, or save new scrape.
                 </p>
               </div>
             {% else %}
@@ -214,6 +202,6 @@
       </div>
     </div>
     <script src="/data/script.js"></script>
-    <!-- <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script> -->
+
   </body>
 </html>
