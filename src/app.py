@@ -84,8 +84,6 @@ def login():
     login_user(existing_user)
     return redirect('/')
 
-
-
 @app.route('/register', methods = ['GET', 'POST'])
 def register():
     if request.method == 'GET':

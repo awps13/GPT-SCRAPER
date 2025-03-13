@@ -25,8 +25,13 @@
               alt="User Icon"
               class="icon"
             />
-            <input type="text" name="username"
-            placeholder="Username" id="username" required />
+            <input
+              type="text"
+              name="username"
+              placeholder="Username"
+              id="username"
+              required
+            />
           </div>
           <div class="input-container" for="password">
             <img
@@ -34,12 +39,27 @@
               alt="Lock Icon"
               class="icon"
             />
-            <input type="password" id="password" name="password" placeholder="Password" required/>
+            <input
+              type="password"
+              name="password"
+              id="password1"
+              placeholder="Password"
+              required
+            />
             <img
               src="{{ url_for('static', filename='images/eye-regular.svg') }}"
               alt="Show Password"
               class="icon"
-              id="togglePassword"
+              id="togglePassword-sembunyi"
+              onclick="showPassword()"
+            />
+            <img
+              src="{{ url_for('static', filename='images/eye-slash-regular.svg') }}"
+              alt="Show Password"
+              class="icon"
+              id="togglePassword-muncul"
+              onclick="hidePassword()"
+              hidden
             />
           </div>
           <button type="submit">Sign Up</button>
@@ -101,11 +121,8 @@
               alt="Illustration"
               class="illustration"
             />
-            <h1><b>Welcome Back to ScrapeSmart!</b></h1>
-            <p>
-              Great to see you back at ScrapeSmart! Keep scraping easily and
-              smartly
-            </p>
+            <h1><b>Join ScrapeSmart Now!</b></h1>
+            <p>Create your account today and start scraping smarter!</p>
             <a href="/login"><button>Sign In</button></a>
           </div>
           <div class="toggle-panel toggle-right">

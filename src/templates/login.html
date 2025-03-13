@@ -46,12 +46,6 @@
               placeholder="Password"
               required
             />
-            <img
-              src="{{ url_for('static', filename='images/eye-regular.svg') }}"
-              alt="Show Password"
-              class="icon"
-              id="togglePassword"
-            />
           </div>
           <button type="submit">Sign Up</button>
         </form>
@@ -83,7 +77,7 @@
             <input
               type="password"
               name="password"
-              id="password"
+              id="password1"
               placeholder="Password"
               required
             />
@@ -91,8 +85,17 @@
               src="{{ url_for('static', filename='images/eye-regular.svg') }}"
               alt="Show Password"
               class="icon"
-              id="togglePassword"
+              id="togglePassword-sembunyi" onclick="showPassword()"
             />
+            <img
+              src="{{ url_for('static', filename='images/eye-slash-regular.svg') }}"
+              alt="Show Password"
+              class="icon"
+              id="togglePassword-muncul"
+              onclick="hidePassword()"
+              hidden
+            />
+
           </div>
           <a href="/beranda">
             <button type="submit">Sign In</button>
@@ -132,8 +135,9 @@
               alt="Illustration"
               class="illustration"
             />
-            <h1><b>Join ScrapeSmart Now!</b></h1>
-            <p>Create your account today and start scraping smarter!</p>
+            <h1><b>Welcome Back to ScrapeSmart!</b></h1>
+            <p> Great to see you back at ScrapeSmart! Keep scraping easily and
+              smartly</p>
             <a href="/register"><button>Sign Up</button></a>
           </div>
         </div>

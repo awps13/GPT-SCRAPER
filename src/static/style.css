@@ -303,3 +303,7 @@ body {
 .input-container:hover {
     background-color: #ddd;
 }
+
+.active-eye {
+    display: inline;
+}
