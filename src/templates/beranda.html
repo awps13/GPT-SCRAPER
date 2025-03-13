@@ -73,14 +73,7 @@
           {% else %}
           <div class="space-y-4 px-6 overflow-y-auto pr-4">
             {% for text in conversation['text'] %}
-            <div class="flex items-start space-x-4">
-              <i class="fa-solid fa-robot text-blue-500"></i>
-              <div
-                class="bg-blue-200 p-4 rounded-lg shadow-md w-full font-semibold"
-              >
-                {{text['user']}}
-              </div>
-            </div>
+            
             <div class="flex items-start space-x-4 ml-4 flex-row-reverse">
               <img
                 src="{{ url_for('static', filename='images/Group.svg') }}"
@@ -88,6 +81,14 @@
               />
               <div
                 class="bg-white p-4 rounded-lg shadow-md w-full font-semibold"
+              >
+                {{text['user']}}
+              </div>
+            </div>
+            <div class="flex items-start space-x-4">
+              <i class="fa-solid fa-robot text-blue-500"></i>
+              <div
+                class="bg-blue-200 p-4 rounded-lg shadow-md w-full font-semibold"
               >
                 {{text['assistant']}}
               </div>
