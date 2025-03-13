@@ -2,58 +2,144 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=
-  , initial-scale=1.0"
-    />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
   </head>
   <body>
-    <div>
-      <!-- Sign-in Form -->
-      <div id="authentication-form">
-        <div>
-          <!-- Form content -->
-          <div>
-            <!-- Header -->
-            <div>
-              <h3>Login to GPT Scrape</h3>
-            </div>
-            <!-- Form body -->
-            <div>
-              <form method="POST" action="">
-                <div>
-                  <label for="username">Username</label>
-                  <input
-                    type="text"
-                    name="username"
-                    id="username"
-                    placeholder="john_doe"
-                    required
-                  />
-                </div>
-                <div>
-                  <label for="password">Password</label>
-                  <input
-                    type="password"
-                    name="password"
-                    id="password"
-                    placeholder="••••••••"
-                    required
-                  />
-                </div>
-                <button type="submit" w>Login</button>
-                <div>
-                  Not Registered?
-                  <a href="/register">Sign up</a>
-                </div>
-              </form>
-            </div>
+    <div class="container" id="container">
+      <div class="form-container sign-up" id="authentication-form">
+        <form method="POST" action="">
+          <h1>Join Now!</h1>
+          <span>Create your account today and start scraping smarter!</span>
+          <div class="input-container" for="username">
+            <img
+              src="{{ url_for('static', filename='images/user.svg') }}"
+              alt="User Icon"
+              class="icon"
+            />
+            <input
+              type="text"
+              name="username"
+              placeholder="Username"
+              id="username"
+              required
+            />
+          </div>
+          <div class="input-container" for="password">
+            <img
+              src="{{ url_for('static', filename='images/lock.svg') }}"
+              alt="Lock Icon"
+              class="icon"
+            />
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Password"
+              required
+            />
+            <img
+              src="{{ url_for('static', filename='images/eye-regular.svg') }}"
+              alt="Show Password"
+              class="icon"
+              id="togglePassword"
+            />
+          </div>
+          <button type="submit">Sign Up</button>
+        </form>
+      </div>
+      <div class="form-container sign-in" id="authentication-form">
+        <form method="POST" action="">
+          <h1>Welcome Back!</h1>
+          <span>Scrape easily and smartly.</span>
+          <div class="input-container" for="username">
+            <img
+              src="{{ url_for('static', filename='images/user.svg') }}"
+              alt="User Icon"
+              class="icon"
+            />
+            <input
+              type="text"
+              placeholder="Username"
+              name="username"
+              id="username"
+              required
+            />
+          </div>
+          <div class="input-container" for="password">
+            <img
+              src="{{ url_for('static', filename='images/lock.svg') }}"
+              alt="Lock Icon"
+              class="icon"
+            />
+            <input
+              type="password"
+              name="password"
+              id="password"
+              placeholder="Password"
+              required
+            />
+            <img
+              src="{{ url_for('static', filename='images/eye-regular.svg') }}"
+              alt="Show Password"
+              class="icon"
+              id="togglePassword"
+            />
+          </div>
+          <a href="/beranda">
+            <button type="submit">Sign In</button>
+          </a>
+        </form>
+      </div>
+      <div class="toggle-container">
+        <div class="toggle">
+          <div class="blur-bg"></div>
+
+          <div class="toggle-panel toggle-left">
+            <img
+              src="{{ url_for('static', filename='images/logo.svg') }}"
+              alt="Logo"
+              class="logo"
+            />
+            <img
+              src="{{ url_for('static', filename='images/Chat bot-rafiki.svg') }}"
+              alt="Illustration"
+              class="illustration"
+            />
+            <h1><b>Welcome Back to ScrapeSmart!</b></h1>
+            <p>
+              Great to see you back at ScrapeSmart! Keep scraping easily and
+              smartly
+            </p>
+            <button class="hidden" id="login">Sign In</button>
+          </div>
+          <div class="toggle-panel toggle-right">
+            <img
+              src="{{ url_for('static', filename='images/logo.svg') }}"
+              alt="Logo"
+              class="logo"
+            />
+            <img
+              src="{{ url_for('static', filename='images/Chat bot-rafiki.svg') }}"
+              alt="Illustration"
+              class="illustration"
+            />
+            <h1><b>Join ScrapeSmart Now!</b></h1>
+            <p>Create your account today and start scraping smarter!</p>
+            <a href="/register"><button>Sign Up</button></a>
           </div>
         </div>
       </div>
     </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
   </body>
 </html>

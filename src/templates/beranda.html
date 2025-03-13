@@ -2,206 +2,191 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=
-  , initial-scale=1.0"
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ScrapeSmart UI</title>
+    <link rel="icon" type="image/svg+xml" href="assets/Group16.svg" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+      integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
     />
-    <title>Beranda</title>
   </head>
-  <body>
-    <!-- Modal -->
-    <div
-      onclick="toggleInsertModal()"
-      id="modal-overlay"
-      
-    ></div>
-    <div
-      id="insert-modal"
-      
-    >
-      <h3 >
-        Insert GPT Link Share
-      </h3>
-      <form action="/insert" method="post">
-        <div>
-            <label for="title" >GPT Title</label>
-            <input 
-            type="text"
-            name="title"
-            id="title"
-            placeholder="Example"
-              required />
-        </div>
-        <div>
-            <label for="link" >GPT Link</label>
-            <input 
-            type="text"
-            name="link"
-            id="link"
-            placeholder="https://example.com"
-             required />
-        </div>
-        <div>
+  <body
+    class="bg-gray-100 flex justify-center items-center h-screen px-4 md:px-10 overflow-hidden"
+  >
+    <div class="w-full max-w-[80rem] h-full flex flex-col rounded-3xl p-5">
+      <div class="flex justify-between items-center mb-4">
+        <div class="grow flex justify-between items-center px-3">
+          <a href="/">
+            <img
+              src="{{ url_for('static', filename='images/ScrapeSmart.svg') }}"
+            />
+          </a>
           <button
-            type="submit"
-            
+            id="showFormBtn"
+            class="bg-blue-500 text-white px-4 py-2 col-end-7 rounded-3xl hover:bg-blue-600"
           >
-            GO
+            + New Scrapper
           </button>
         </div>
-      </form>
-    </div>
-    <div>
-      <nav
-        
-      >
-        <div >
-          <div >
-            <div >
-              <button
-                data-drawer-target="logo-sidebar"
-                data-drawer-toggle="logo-sidebar"
-                aria-controls="logo-sidebar"
-                type="button"
-                
-              >
-                <span >Open sidebar</span>
-                <svg
-                  
-                  aria-hidden="true"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    clip-rule="evenodd"
-                    fill-rule="evenodd"
-                    d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"
-                  ></path>
-                </svg>
-              </button>
-              <a href="/" >
-                <span
-                  
-                  >GPT Scraper</span
-                >
-              </a>
-            </div>
-            <div >
-              <div >
-                <div>
-                  <button
-                    type="button"
-                    
-                    aria-expanded="false"
-                    data-dropdown-toggle="dropdown-user"
-                  >
-                    <span>Menu</span>
-                    <span >
-                      {{user['username'][0]}}
-                    </span>
-                  </button>
-                </div>
-                <div
-                  
-                  id="dropdown-user"
-                >
-                  <div  role="none">
-                    <p
-                      
-                      role="none"
-                    >
-                      {{user['username']}}
-                    </p>
-                  </div>
-                  <ul class="py-1" role="none">
-                    <li>
-                      <a
-                        href="/logout"
-                        
-                        role="menuitem"
-                        >Sign out</a
-                      >
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </nav>
 
-      <aside
-        id="logo-sidebar"
-        
-        aria-label="Sidebar"
-      >
-        <div >
-          <button
-          onclick="toggleInsertModal()"
-          type="button"
-          
-        >
-          New Scrape
-        </button>
-          <ul class="space-y-2 font-medium">
-            <!-- Conversations -->
-             {% for curr_conv in conversations %}
-            <li>
-              <a
-                href="/conversations/{{ curr_conv['conversation_id'] }}"
-                
-              >
-                <span class="ms-3 line-clamp-1">
-                  {{curr_conv['title']}}
-                </span>
-              </a>
-            </li>
-            {% endfor %}
-          </ul>
-        </div>
-      </aside>
-
-      <div >
         <div
-          
+          class="w-1/4 bg-white px-4 py-2 rounded-3xl flex justify-between items-center shadow-lg"
         >
-          <div >
-          <!-- Main content -->
-           {% if home %}
-              <!-- Fallback text -->
-              <div >
-                <h4 >GPT Scraper</h4>
-                <p>
-                  Select one scrape on the left side, or save new scrape.
-                </p>
-              </div>
-            {% else %}
-
-              <!-- Content -->
-              <div
-                
-              >
-                {% for text in conversation['text'] %}
-                <section >
-                  <div >
-                    {{text['user']}}
-                  </div>
-                </section>
-                <section >
-                  <div >
-                    {{text['assistant']}}
-                  </div>
-                </section>
-                {%endfor%}
-              </div>
-
-            {% endif %}
+          <div class="flex items-center gap-2">
+            <img
+              src="{{ url_for('static', filename='images/Group.svg') }}"
+              class="aspect-square w-[2rem]"
+            />
+            <span class="text-gray-700 font-semibold"
+              >{{user['username']}}</span
+            >
+          </div>
+          <a href="/logout">
+            <button class="w-[2rem] h-[2rem] flex items-center justify-center">
+              <i
+                class="fa-solid fa-arrow-right-from-bracket text-blue-500 text-xl"
+              ></i>
+            </button>
+          </a>
         </div>
       </div>
-    </div>
-    <script src="/data/script.js"></script>
 
+      <div class="flex gap-4 h-full">
+        <!-- Chat Section -->
+        <div
+          class="w-full bg-white p-4 rounded-3xl shadow-lg h-[80vh] overflow-auto"
+        >
+          <div
+            class="flex justify-between items-center bg-blue-100 p-2 rounded-t-3xl -m-4 mb-2 sticky -top-4"
+          >
+            <h2 class="text-lg font-semibold p-2 ml-6">CHAT</h2>
+          </div>
+          {% if home %}
+          <div class="flex flex-col justify-center items-center text-center h-[60vh] gap-3">
+            <h1 class="text-5xl font-semibold">GPT SCRAPER</h1>
+            <p>Choose your chat or insert your link share ChatGPT</p>
+          </div>
+          {% else %}
+          <div class="space-y-4 px-6 overflow-y-auto pr-4">
+            {% for text in conversation['text'] %}
+            <div class="flex items-start space-x-4">
+              <i class="fa-solid fa-robot text-blue-500"></i>
+              <div
+                class="bg-blue-200 p-4 rounded-lg shadow-md w-full font-semibold"
+              >
+                {{text['user']}}
+              </div>
+            </div>
+            <div class="flex items-start space-x-4 ml-4 flex-row-reverse">
+              <img
+                src="{{ url_for('static', filename='images/Group.svg') }}"
+                class="aspect-square w-[2rem] space-x-4 ml-4"
+              />
+              <div
+                class="bg-white p-4 rounded-lg shadow-md w-full font-semibold"
+              >
+                {{text['assistant']}}
+              </div>
+            </div>
+            {%endfor%}
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- History Section -->
+        <div
+          class="w-1/3 bg-white p-4 rounded-3xl shadow-lg h-[80vh] overflow-auto"
+        >
+          <div
+            class="flex justify-between items-center bg-blue-100 p-2 rounded-t-3xl -m-4 mb-2 sticky -top-4"
+          >
+            <h2 class="text-lg font-semibold p-2">History</h2>
+            <button class="w-[2rem] h-[2rem] flex items-center justify-center">
+              <i
+                class="fa-solid fa-clock-rotate-left text-blue-600 text-xl pr-4"
+              ></i>
+            </button>
+          </div>
+          <div class="space-y-2 w-full w-[400px]">
+            {% for curr_conv in conversations %}
+            <button
+              class="flex items-center w-full bg-blue-200 hover:bg-blue-300 p-3 rounded-lg shadow-md space-x-2"
+            >
+              <i
+                class="fa-regular fa-comment text-blue-500 bg-white px-2 py-0.5 rounded-full text-lg"
+              ></i>
+              <a href="/conversations/{{ curr_conv['conversation_id'] }}" class="w-full text-start"
+                >{{curr_conv['title']}}</a
+              >
+            </button>
+            {% endfor %}
+          </div>
+        </div>
+        <form action="/insert" method="post">
+          <div
+            id="formModal"
+            class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+          >
+            <div
+              class="bg-white p-5 rounded-lg shadow-lg w-[90%] max-w-xl border border-blue-300 relative"
+            >
+              <!-- Tombol Close -->
+              <button
+                id="closeFormBtn"
+                class="absolute top-2 right-2 text-gray-600 hover:text-gray-900 text-2xl"
+              >
+                &times;
+              </button>
+
+              <label class="block mb-2 font-semibold" for="title"
+                >Masukkan Judul</label
+              >
+              <input
+                type="text"
+                class="w-full p-2 mb-4 border rounded-lg bg-blue-100 focus:outline-none focus:ring focus:ring-blue-400"
+                name="title"
+                id="title"
+                required
+              />
+
+              <label class="block mb-2 font-semibold" for="link"
+                >Masukkan Link</label
+              >
+              <input
+                type="text"
+                class="w-full p-2 mb-4 border rounded-lg bg-blue-100 focus:outline-none focus:ring focus:ring-blue-400"
+                name="link"
+                id="link"
+                required
+              />
+
+              <button
+                class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                type="submit"
+              >
+                Tambah
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
   </body>
+  <script>
+    document
+      .getElementById("showFormBtn")
+      .addEventListener("click", function () {
+        document.getElementById("formModal").classList.remove("hidden"); // Tampilkan modal
+      });
+
+    document
+      .getElementById("closeFormBtn")
+      .addEventListener("click", function () {
+        document.getElementById("formModal").classList.add("hidden"); // Sembunyikan modal
+      });
+  </script>
 </html>
