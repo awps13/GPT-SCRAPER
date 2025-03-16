@@ -58,12 +58,14 @@ def load_user(user_id):
 def index():
     conversations = Conversation.query.filter_by(user_id=current_user.id).all()
     for conversation in conversations:
-        print("conversation", conversation)
+        # print("conversation", conversation)
+        conversation.lowercased_text = json.loads(conversation.lowercased_text)
         conversation.text = json.loads(conversation.text)
+        # print(conversation.text)
     
     # print(json.loads(conversations[0].text))
-    
-    return render_template('beranda.html', conversations=conversations, home = True, user = current_user)
+    return render_template('beranda.html', conversations=conversations, home = True, user = current_user, is_lower = 0)
+    # return "hello world"
 
 @app.route('/login', methods = ['GET', 'POST'])
 def login():
@@ -118,6 +120,7 @@ def logout():
 @app.route('/conversations/<int:conversation_id>', methods = ['GET'])
 @login_required
 def get_conversation(conversation_id):
+    is_lower = request.args.get('lower', default=0, type=int)
     conversations = Conversation.query.filter_by(user_id=current_user.id).all()
 
     if len(conversations) == 0:
@@ -125,6 +128,7 @@ def get_conversation(conversation_id):
 
     for conversation in conversations:
         conversation.text = json.loads(conversation.text)
+        conversation.lowercased_text = json.loads(conversation.lowercased_text)
     conversation = next((conversation for conversation in conversations if conversation.conversation_id == conversation_id))
     
     if not conversation:
@@ -133,7 +137,7 @@ def get_conversation(conversation_id):
     if conversation.user_id != current_user.id:
         return redirect('/')
 
-    return render_template('beranda.html', conversations = conversations, conversation=conversation, home = False, user = current_user)
+    return render_template('beranda.html', conversations = conversations, conversation=conversation, home = False, user = current_user, is_lower = is_lower)
     
 
 @app.route('/insert', methods = ["POST"])
@@ -146,7 +150,7 @@ def insert_conversation_route():
     title = request.form.get('title')
     link = request.form.get('link')
 
-    user_chat, assitant_chat =  scrape(link, headless=True)
+    user_chat, assitant_chat, assitant_chat_raw =  scrape(link, headless=True)
     text = []
     lowercased_text = []
 
@@ -158,7 +162,7 @@ def insert_conversation_route():
     
     for i in range(len(user_chat)):
         text.append({"user": user_chat[i], "assistant": assitant_chat[i]})
-        lowercased_text.append({"user": user_chat[i].lower(), "assistant": assitant_chat[i].lower()})
+        lowercased_text.append({"user": user_chat[i].lower(), "assistant": assitant_chat_raw[i].lower()})
     
     new_conv = Conversation(user_id = current_user.id, title = title, link = link, text = json.dumps(text), lowercased_text = json.dumps(lowercased_text))
     db.session.add(new_conv)
