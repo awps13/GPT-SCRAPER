@@ -337,4 +337,36 @@
       });
     });
   </script>
+  <script>
+    const copyButton = document.querySelectorAll('button[aria-label="Copy"]');
+    copyButton.forEach((button) => {
+      // Button styling
+      button.textContent = "Copy";
+      button.style.background = "#007074";
+      button.style.color = "white";
+      button.style.padding = "5px 10px";
+      button.style.borderRadius = "1rem";
+      button.style.fontSize = "0.7rem"
+
+      // Adding event listener
+      button.addEventListener("click", function () {
+        const pre = button.closest("pre");
+        if (pre) {
+          const code = pre.querySelector("code");
+          if (code) {
+            const text = code.innerText;
+            alert("Code has been copied");
+
+            // Copy to clipboard
+            if (window.isSecureContext && navigator.clipboard) {
+              navigator.clipboard.writeText(text);
+            } else {
+              unsecuredCopyToClipboard(text);
+            }
+            setTimeout(() => (button.textContent = "Copy"), 1500);
+          }
+        }
+      });
+    });
+  </script>
 </html>
