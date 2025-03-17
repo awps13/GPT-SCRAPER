@@ -1,11 +1,13 @@
-from flask import Flask, render_template, request, redirect
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-
+from flask import Flask, render_template, request, redirect # type: ignore
+from flask_sqlalchemy import SQLAlchemy # type: ignore
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user # type: ignore
 import json
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash # type: ignore
 import os
 from scrape import scrape
+import re
+import nltk # type: ignore
+from nltk.corpus import stopwords # type: ignore
 
 app = Flask(__name__)
 DB_CONFIG = {
@@ -47,6 +49,40 @@ class Conversation(db.Model):
     lowercased_text = db.Column(db.Text, nullable = False)
     created_at = db.Column(db.TIMESTAMP, server_default = db.func.current_timestamp())
     updated_at = db.Column(db.TIMESTAMP, server_default = db.func.current_timestamp(), onupdate = db.func.current_timestamp())
+
+nltk.download('stopwords')
+stop_words = set(stopwords.words('indonesian'))
+
+def preprocess_text(text):
+    emoji_pattern = re.compile(
+        "["
+        "\U0001F600-\U0001F64F"  # Emoticon
+        "\U0001F300-\U0001F5FF"  # Simbol & Piktogram
+        "\U0001F680-\U0001F6FF"  # Transport & Simbol
+        "\U0001F700-\U0001F77F"  # Simbol Alkimia
+        "\U0001F780-\U0001F7FF"  # Simbol Geometri
+        "\U0001F800-\U0001F8FF"  # Simbol Tambahan
+        "\U0001F900-\U0001F9FF"  # Emoticon Tambahan
+        "\U0001FA00-\U0001FA6F"  # Simbol Lainnya
+        "\U0001FA70-\U0001FAFF"  # Simbol Ekstra
+        "\U00002702-\U000027B0"  # Simbol Lain
+        "\U000024C2-\U0001F251"  # Karakter Unicode
+        "]+", flags=re.UNICODE)
+    text = emoji_pattern.sub(r'', text)
+
+    # Konversi ke huruf kecil
+    text = text.lower()
+
+    # Hapus tanda baca dan angka
+    text = re.sub(r'[^a-z\s]', '', text)
+
+    # Hapus spasi berlebih
+    text = re.sub(r'\s+', ' ', text).strip()
+
+    # Hapus stopword
+    text = " ".join([word for word in text.split() if word not in stop_words])
+
+    return text
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -128,7 +164,7 @@ def get_conversation(conversation_id):
 
     for conversation in conversations:
         conversation.text = json.loads(conversation.text)
-        conversation.lowercased_text = json.loads(conversation.lowercased_text)
+        conversation.lowercased_text = json.loads(conversation.lowercased_text) 
     conversation = next((conversation for conversation in conversations if conversation.conversation_id == conversation_id))
     
     if not conversation:
@@ -140,34 +176,35 @@ def get_conversation(conversation_id):
     return render_template('beranda.html', conversations = conversations, conversation=conversation, home = False, user = current_user, is_lower = is_lower)
     
 
-@app.route('/insert', methods = ["POST"])
+@app.route('/insert', methods=["POST"])
 @login_required
 def insert_conversation_route():
-    # req_data = request.get_json()
-    # title = req_data['title']
-    # link = req_data['link']
+    title = request.form.get('title', '')  
+    link = request.form.get('link', '')
 
-    title = request.form.get('title')
-    link = request.form.get('link')
+    user_chat, assitant_chat, assitant_chat_raw = scrape(link, headless=True)
+    text = [{"user": u, "assistant": a} for u, a in zip(user_chat, assitant_chat)]
+    lowercased_text = [{"user": preprocess_text(u.lower()), "assistant": preprocess_text(a.lower())} for u, a in zip(user_chat, assitant_chat_raw)]
 
-    user_chat, assitant_chat, assitant_chat_raw =  scrape(link, headless=True)
-    text = []
-    lowercased_text = []
+    try:
+        json_text = json.dumps(text, ensure_ascii=False)
+        json_lowercased_text = json.dumps(lowercased_text, ensure_ascii=False)
+    except Exception as e:
+        return f"JSON Encode Error: {str(e)}", 400
 
-    if not title or not link:
-        return "Error: Title or link is empty"
+    new_conv = Conversation(
+        user_id=current_user.id,
+        title=title,
+        link=link,
+        text=json_text,
+        lowercased_text=json_lowercased_text
+    )
 
-    if len(user_chat) != len(assitant_chat):
-        return "Error: User and assistant chat length mismatch"
-    
-    for i in range(len(user_chat)):
-        text.append({"user": user_chat[i], "assistant": assitant_chat[i]})
-        lowercased_text.append({"user": user_chat[i].lower(), "assistant": assitant_chat_raw[i].lower()})
-    
-    new_conv = Conversation(user_id = current_user.id, title = title, link = link, text = json.dumps(text), lowercased_text = json.dumps(lowercased_text))
     db.session.add(new_conv)
     db.session.commit()
+
     return redirect(f'/conversations/{new_conv.conversation_id}')
+
 @app.route('/history', methods=['GET'])
 @login_required
 def history():

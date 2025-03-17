@@ -1,4 +1,4 @@
-import mysql.connector
+import mysql.connector # type: ignore
 from json import dumps
 
 # Konfigurasi database
@@ -43,7 +43,7 @@ def insertScraper(title, link, text, lowercased_text):
     if conn:
         cursor = conn.cursor()
         query = "INSERT INTO Scraper (title, link, text, lowercased_text) VALUES (%s,%s,%s,%s)"
-        cursor.execute(query(title,link,text,lowercased_text))
+        cursor.execute(query, (title, link, text, lowercased_text))
         conn.commit()
         cursor.close()
         conn.close()

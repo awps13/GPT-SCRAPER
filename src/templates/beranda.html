@@ -76,26 +76,48 @@
           class="w-full bg-white bg-opacity-50 p-4 rounded-3xl shadow-lg h-[80vh] overflow-auto"
         >
           <div
-            class="flex justify-between items-center bg-blue-500 p-2 rounded-t-3xl -m-4 mb-2 sticky -top-4"
+            class="flex justify-between items-center bg-blue-500 p-4 rounded-t-3xl -m-4 mb-2 sticky -top-4 z-10"
           >
+            <!-- Left spacer to maintain balance -->
+            <div class="w-24 md:w-36 flex justify-start">
+              <!-- Toggle switch -->
+              <div class="flex items-center">
+                <label class="inline-flex relative items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    id="toggle-switch"
+                    class="sr-only peer"
+                    onclick="window.location.href = '?lower=' + (this.checked ? '1' : '0')"
+                  />
+                  <div
+                    class="w-14 h-7 bg-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-blue-600 after:border-blue-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-white"
+                  ></div>
+                  <span class="ml-3 text-sm font-medium text-white">
+                    <span id="toggle-label">Original</span>
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Center title with fixed position -->
             <h2
-              class="text-lg font-semibold p-2 ml-6 text-white flex-1 text-center"
+              class="text-lg font-semibold text-white absolute left-1/2 transform -translate-x-1/2 w-auto whitespace-nowrap"
             >
               {% if conversation %} Conversation '{{ conversation["title"] }}'
               {% else %} Conversation {% endif %}
             </h2>
 
-            <!-- Tombol Sidebar & History (Hanya Muncul di Mobile) -->
-            <div class="flex items-center gap-2 md:hidden">
-              <!-- Tombol History -->
+            <!-- Right buttons (mobile) -->
+            <div class="w-24 md:w-36 flex items-center gap-2 justify-end">
+              <!-- Tombol History (Mobile) -->
               <a
                 href="/history"
-                class="flex items-center justify-center w-10 h-10 text-white hover:text-blue-200 transition-colors"
+                class="flex items-center justify-center w-10 h-10 text-white hover:text-blue-200 transition-colors md:hidden"
               >
                 <i class="fa-solid fa-clock-rotate-left text-xl"></i>
               </a>
-              <!-- Tombol Buka Sidebar -->
-              <button id="toggleSidebar" class="text-white p-2">
+              <!-- Tombol Buka Sidebar (Mobile) -->
+              <button id="toggleSidebar" class="text-white p-2 md:hidden">
                 <i class="fa-solid fa-bars text-xl"></i>
               </button>
             </div>
@@ -110,55 +132,47 @@
           </div>
           {% else %}
           <div
-            class="flex-1 overflow-auto p-4 md:p-6 w-full flex flex-col items-center space-y-4"
+            class="flex-1 overflow-auto p-4 md:p-6 w-full flex flex-col items-center space-y-4 mt-6"
           >
-            <div class="flex gap-4">
-              <a
-                class="hover:scale-105 transition-all px-4 py-2 rounded-lg {{'bg-blue-500 text-white' if is_lower != 1 else ''}}"
-                href="?lower=0"
-                >Original Text</a
-              >
-              <a
-                class="hover:scale-105 transition-all px-4 py-2 rounded-lg {{'bg-blue-500 text-white' if is_lower == 1 else ''}}"
-                href="?lower=1"
-                >Lowercased Text</a
-              >
-            </div>
             {% set curr_text = conversation['lowercased_text'] if is_lower==1
-            else conversation['text']%} {% for text in curr_text %}
+            else conversation['text'] %} {% for text in curr_text %}
+            <!-- User Chat -->
             <!-- User Chat -->
             <div
-              class="flex items-start w-full max-w-[90%] md:max-w-[80%] self-end flex-row-reverse ml-auto"
+              class="flex items-start w-full self-end flex-row-reverse ml-auto"
             >
               <i
                 class="fa-solid fa-user text-gray-700 text-lg md:text-xl ml-1"
               ></i>
               <div
-                class="bg-white rounded-[20px] p-3 md:p-4 max-w-[80%] md:max-w-[70%]"
+                class="bg-white rounded-[20px] p-3 md:p-4 w-auto max-w-full md:max-w-[80%] text-left"
               >
-                <p class="text-black text-xs md:text-sm font-medium leading-4">
-                  {% if is_lower == 0 %} {{ text['user']|safe }} {% else %}
-                  {{ text['user'] }} {% endif %}
+                <p
+                  class="text-black text-xs md:text-sm font-medium leading-4 break-words whitespace-pre-wrap overflow-hidden"
+                >
+                  {% if is_lower == 0 %} {{ text['user']|safe }} {% else %} {{
+                  text['user'] }} {% endif %}
                 </p>
               </div>
             </div>
 
             <!-- Bot Chat -->
-            <div
-              class="flex items-start w-full max-w-[90%] md:max-w-[80%] self-start flex-row mr-auto"
-            >
+            <div class="flex items-start w-full self-start flex-row mr-auto">
               <i
                 class="fa-solid fa-robot text-blue-500 text-lg md:text-xl mr-1"
               ></i>
               <div
-                class="bg-blue-300 rounded-[20px] p-3 md:p-4 max-w-[80%] md:max-w-[70%]"
+                class="bg-blue-300 rounded-[20px] p-3 md:p-4 w-auto max-w-full md:max-w-[80%] text-left"
               >
-                <p class="text-black text-xs md:text-sm font-medium leading-4">
+                <p
+                  class="text-black text-xs md:text-sm font-medium leading-4 break-words whitespace-pre-wrap overflow-hidden"
+                >
                   {% if is_lower == 0 %} {{ text['assistant']|safe }} {% else %}
                   {{ text['assistant'] }} {% endif %}
                 </p>
               </div>
             </div>
+
             {% endfor %}
           </div>
 
@@ -170,7 +184,7 @@
           class="w-1/3 bg-white bg-opacity-50 p-4 rounded-3xl shadow-lg h-[80vh] overflow-auto hidden md:block"
         >
           <div
-            class="flex justify-between items-center bg-blue-500 p-2 rounded-t-3xl -m-4 mb-2 sticky -top-4"
+            class="flex justify-between items-center bg-blue-500 p-2 rounded-t-3xl -m-4 mb-2 sticky -top-4 z-10"
           >
             <h2 class="text-lg font-semibold p-2 text-white">History</h2>
             <a
@@ -180,20 +194,17 @@
               <i class="fa-solid fa-clock-rotate-left text-xl"></i>
             </a>
           </div>
-          <div class="space-y-2 w-full w-[400px]">
+          <div class="space-y-2 w-full max-w-[400px]">
             {% for curr_conv in conversations %}
-            <button
-              class="flex items-center w-full bg-blue-300 hover:bg-blue-400 p-3 rounded-3xl shadow-md space-x-2"
+            <a
+              href="/conversations/{{ curr_conv['conversation_id'] }}"
+              class="flex items-center w-full bg-blue-300 hover:bg-blue-400 p-3 rounded-3xl shadow-md space-x-2 overflow-hidden"
             >
               <i
                 class="fa-regular fa-comment text-blue-500 bg-white px-2 py-0.5 rounded-full text-lg"
               ></i>
-              <a
-                href="/conversations/{{ curr_conv['conversation_id'] }}"
-                class="w-full text-start"
-                >{{curr_conv['title']}}</a
-              >
-            </button>
+              <span class="truncate w-full">{{curr_conv['title']}}</span>
+            </a>
             {% endfor %}
           </div>
         </div>
@@ -201,7 +212,7 @@
         <!-- History Sidebar (Mobile) -->
         <div
           id="mobileSidebar"
-          class="fixed top-0 right-0 w-3/4 h-full bg-white shadow-lg transform translate-x-full transition-transform md:hidden"
+          class="fixed top-0 right-0 w-3/4 h-full bg-white shadow-lg transform translate-x-full transition-transform md:hidden z-50"
         >
           <div class="flex justify-between items-center bg-blue-500 p-4">
             <h2 class="text-lg font-semibold text-white">History</h2>
@@ -231,7 +242,7 @@
     <form action="/insert" method="post">
       <div
         id="formModal"
-        class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+        class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
       >
         <div
           class="bg-white p-5 rounded-[20px] shadow-lg w-[90%] max-w-xl border border-blue-300 relative"
@@ -306,5 +317,24 @@
           .getElementById("mobileSidebar")
           .classList.add("translate-x-full");
       });
+    document.addEventListener("DOMContentLoaded", function () {
+      const urlParams = new URLSearchParams(window.location.search);
+      const isLower = urlParams.get("lower") === "1";
+      const toggleSwitch = document.getElementById("toggle-switch");
+      const toggleLabel = document.getElementById("toggle-label");
+
+      if (isLower) {
+        toggleSwitch.checked = true;
+        toggleLabel.textContent = "Preprocessing";
+      } else {
+        toggleSwitch.checked = false;
+        toggleLabel.textContent = "Original";
+      }
+
+      // Update label text when toggled
+      toggleSwitch.addEventListener("change", function () {
+        toggleLabel.textContent = this.checked ? "Preprocessing" : "Original";
+      });
+    });
   </script>
 </html>
