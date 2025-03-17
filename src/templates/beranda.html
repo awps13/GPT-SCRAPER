@@ -248,8 +248,7 @@
                 <p
                   class="text-black text-xs md:text-sm font-medium leading-4 break-words whitespace-pre-wrap overflow-hidden"
                 >
-                  {% if is_lower == 0 %} {{ text['user']|safe }} {% else %} {{
-                  text['user'] }} {% endif %}
+                  {{ text['user'] }}
                 </p>
               </div>
             </div>
@@ -293,7 +292,7 @@
                     <td class="py-2 px-3 text-xs">
                       <div class="bg-gray-100 p-2 rounded relative cell-content">
                         <div class="chat-text">
-                          {% if is_lower == 0 %} {{ text['user']|safe }} {% else %} {{ text['user'] }} {% endif %}
+                          {{ text['user']}}
                         </div>
                         <button class="expand-btn" onclick="showPopup('user-{{ loop.index }}')">
                           <i class="fa-solid fa-expand"></i>
