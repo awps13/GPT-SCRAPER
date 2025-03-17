@@ -276,21 +276,21 @@
           <!-- Table View -->
           <div id="table-view" class="hidden w-full mt-6">
             <div class="w-full">
-              <table class="min-w-full bg-white rounded-lg overflow-hidden">
+              <table class="min-w-full bg-white rounded-lg overflow-x-hidden">
                 <thead class="bg-blue-500 text-white">
                   <tr>
-                    <th class="w-1/12 py-2 px-3 text-left text-xs font-semibold">#</th>
-                    <th class="w-2/5 py-2 px-3 text-left text-xs font-semibold">User</th>
-                    <th class="w-2/5 py-2 px-3 text-left text-xs font-semibold">Assistant</th>
+                    <th class="w-1/12 py-2 px-3 text-left text-xs font-semibold text-center">#</th>
+                    <th class="w-2/5 py-2 px-3 text-left text-xs font-semibold text-center">User</th>
+                    <th class="w-2/5 py-2 px-3 text-left text-xs font-semibold text-center">Assistant</th>
                   </tr>
                 </thead>
                 <tbody>
                   {% set curr_text = conversation['lowercased_text'] if is_lower==1 else conversation['text'] %}
                   {% for text in curr_text %}
                   <tr class="border-b hover:bg-gray-50">
-                    <td class="py-2 px-3 text-xs text-gray-500">{{ loop.index }}</td>
+                    <td class="py-2 px-3 text-xs text-gray-500 text-center">{{ loop.index }}</td>
                     <td class="py-2 px-3 text-xs">
-                      <div class="bg-gray-100 p-2 rounded relative cell-content">
+                      <div class="bg-gray-100 p-2 rounded relative cell-content max-w-[400px] overflow-x-hidden">
                         <div class="chat-text">
                           {{ text['user']}}
                         </div>
