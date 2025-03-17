@@ -8,11 +8,98 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link
       rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <link
+      rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
       integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <style>
+      /* Customize scrollbar for table cells */
+      .cell-content {
+        max-height: 120px;
+        overflow-y: auto;
+        position: relative;
+      }
+      
+      .cell-content::-webkit-scrollbar {
+        width: 6px;
+      }
+      
+      .cell-content::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+      }
+      
+      .cell-content::-webkit-scrollbar-thumb {
+        background: #b3d4fc;
+        border-radius: 10px;
+      }
+      
+      .cell-content::-webkit-scrollbar-thumb:hover {
+        background: #3b82f6;
+      }
+      
+      /* Expand button styles */
+      .expand-btn {
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+        background-color: rgba(59, 130, 246, 0.7);
+        color: white;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.2s ease;
+      }
+      
+      .expand-btn:hover {
+        background-color: rgba(59, 130, 246, 1);
+      }
+      
+      /* Popup modal styles */
+      .text-popup {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.7);
+        z-index: 100;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+      }
+      
+      .text-popup.active {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      
+      .popup-content {
+        background-color: white;
+        width: 80%;
+        max-width: 800px;
+        max-height: 80vh;
+        border-radius: 15px;
+        padding: 20px;
+        position: relative;
+        overflow-y: auto;
+      }
+    </style>
   </head>
   <body
     class="bg-gray-100 flex justify-center items-center h-screen px-4 md:px-10 overflow-hidden relative"
@@ -80,22 +167,12 @@
           >
             <!-- Left spacer to maintain balance -->
             <div class="w-24 md:w-36 flex justify-start">
-              <!-- Toggle switch -->
+              <!-- View selector dropdown -->
               <div class="flex items-center">
-                <label class="inline-flex relative items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    id="toggle-switch"
-                    class="sr-only peer"
-                    onclick="window.location.href = '?lower=' + (this.checked ? '1' : '0')"
-                  />
-                  <div
-                    class="w-14 h-7 bg-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-blue-600 after:border-blue-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-white"
-                  ></div>
-                  <span class="ml-3 text-sm font-medium text-white">
-                    <span id="toggle-label">Original</span>
-                  </span>
-                </label>
+                <select id="view-selector" class="bg-white text-blue-600 rounded-full p-1 px-2 text-sm cursor-pointer" onchange="changeView(this.value)">
+                  <option value="chat" {% if view_mode != 'table' %}selected{% endif %}>Chat View</option>
+                  <option value="table" {% if view_mode == 'table' %}selected{% endif %}>Table View</option>
+                </select>
               </div>
             </div>
 
@@ -107,16 +184,35 @@
               {% else %} Conversation {% endif %}
             </h2>
 
-            <!-- Right buttons (mobile) -->
+            <!-- Right buttons with toggle switch -->
             <div class="w-24 md:w-36 flex items-center gap-2 justify-end">
-              <!-- Tombol History (Mobile) -->
+              <!-- Toggle switch for Original/Preprocessing -->
+              <div class="flex items-center">
+                <label class="inline-flex relative items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    id="toggle-switch"
+                    class="sr-only peer"
+                    onclick="window.location.href = '?lower=' + (this.checked ? '1' : '0') + '&view=' + (document.getElementById('view-selector').value)"
+                  />
+                  <div
+                    class="w-14 h-7 bg-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-blue-600 after:border-blue-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-white"
+                  ></div>
+                  <span class="ml-3 text-sm font-medium text-white">
+                    <span id="toggle-label">Original</span>
+                  </span>
+                </label>
+              </div>
+              
+              <!-- History button (Mobile) -->
               <a
                 href="/history"
                 class="flex items-center justify-center w-10 h-10 text-white hover:text-blue-200 transition-colors md:hidden"
               >
                 <i class="fa-solid fa-clock-rotate-left text-xl"></i>
               </a>
-              <!-- Tombol Buka Sidebar (Mobile) -->
+              
+              <!-- Sidebar toggle button (Mobile) -->
               <button id="toggleSidebar" class="text-white p-2 md:hidden">
                 <i class="fa-solid fa-bars text-xl"></i>
               </button>
@@ -131,15 +227,17 @@
             <p>Choose your chat or insert your link share ChatGPT</p>
           </div>
           {% else %}
+          
+          <!-- Chat View -->
           <div
+            id="chat-view"
             class="flex-1 overflow-auto p-4 md:p-6 w-full flex flex-col items-center space-y-4 mt-6"
           >
             {% set curr_text = conversation['lowercased_text'] if is_lower==1
             else conversation['text'] %} {% for text in curr_text %}
             <!-- User Chat -->
-            <!-- User Chat -->
             <div
-              class="flex items-start w-full self-end flex-row-reverse ml-auto"
+              class="flex items-start w-full self-end flex-row-reverse ml-auto max-w-[90%] md:max-w-[85%]"
             >
               <i
                 class="fa-solid fa-user text-gray-700 text-lg md:text-xl ml-1"
@@ -174,6 +272,62 @@
             </div>
 
             {% endfor %}
+          </div>
+          
+          <!-- Table View -->
+          <div id="table-view" class="hidden w-full mt-6">
+            <div class="w-full">
+              <table class="min-w-full bg-white rounded-lg overflow-hidden">
+                <thead class="bg-blue-500 text-white">
+                  <tr>
+                    <th class="w-1/12 py-2 px-3 text-left text-xs font-semibold">#</th>
+                    <th class="w-2/5 py-2 px-3 text-left text-xs font-semibold">User</th>
+                    <th class="w-2/5 py-2 px-3 text-left text-xs font-semibold">Assistant</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% set curr_text = conversation['lowercased_text'] if is_lower==1 else conversation['text'] %}
+                  {% for text in curr_text %}
+                  <tr class="border-b hover:bg-gray-50">
+                    <td class="py-2 px-3 text-xs text-gray-500">{{ loop.index }}</td>
+                    <td class="py-2 px-3 text-xs">
+                      <div class="bg-gray-100 p-2 rounded relative cell-content">
+                        <div class="chat-text">
+                          {% if is_lower == 0 %} {{ text['user']|safe }} {% else %} {{ text['user'] }} {% endif %}
+                        </div>
+                        <button class="expand-btn" onclick="showPopup('user-{{ loop.index }}')">
+                          <i class="fa-solid fa-expand"></i>
+                        </button>
+                      </div>
+                    </td>
+                    <td class="py-2 px-3 text-xs">
+                      <div class="bg-blue-100 p-2 rounded relative cell-content">
+                        <div class="chat-text">
+                          {% if is_lower == 0 %} {{ text['assistant']|safe }} {% else %} {{ text['assistant'] }} {% endif %}
+                        </div>
+                        <button class="expand-btn" onclick="showPopup('assistant-{{ loop.index }}')">
+                          <i class="fa-solid fa-expand"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Text Popup Modal -->
+          <div id="text-popup" class="text-popup">
+            <div class="popup-content">
+              <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-medium text-blue-600">Chat Content</h3>
+                <button class="text-gray-600 hover:text-gray-800" onclick="hidePopup()">
+                  <i class="fa-solid fa-times text-xl"></i>
+                </button>
+              </div>
+              <div id="popup-content" class="whitespace-pre-wrap text-sm"></div>
+            </div>
           </div>
 
           {% endif %}
@@ -317,12 +471,16 @@
           .getElementById("mobileSidebar")
           .classList.add("translate-x-full");
       });
+      
     document.addEventListener("DOMContentLoaded", function () {
       const urlParams = new URLSearchParams(window.location.search);
       const isLower = urlParams.get("lower") === "1";
+      const viewMode = urlParams.get("view") || "chat";
       const toggleSwitch = document.getElementById("toggle-switch");
       const toggleLabel = document.getElementById("toggle-label");
+      const viewSelector = document.getElementById("view-selector");
 
+      // Set the toggle switch state based on URL parameter
       if (isLower) {
         toggleSwitch.checked = true;
         toggleLabel.textContent = "Preprocessing";
@@ -331,10 +489,141 @@
         toggleLabel.textContent = "Original";
       }
 
+      // Set view mode based on URL parameter
+      if (viewMode === "table") {
+        document.getElementById("chat-view").classList.add("hidden");
+        document.getElementById("table-view").classList.remove("hidden");
+        viewSelector.value = "table";
+      } else {
+        document.getElementById("chat-view").classList.remove("hidden");
+        document.getElementById("table-view").classList.add("hidden");
+        viewSelector.value = "chat";
+      }
+
       // Update label text when toggled
       toggleSwitch.addEventListener("change", function () {
         toggleLabel.textContent = this.checked ? "Preprocessing" : "Original";
       });
+      
+      // Store chat content for popup display
+      setupTableCellPopups();
+    });
+    
+    // Function to set up popup functionality for table cells
+    function setupTableCellPopups() {
+      // Create a data structure to store all chat content
+      window.chatContent = {};
+      
+      // Get all user and assistant messages
+      const tableRows = document.querySelectorAll('#table-view tbody tr');
+      
+      tableRows.forEach((row, index) => {
+        const userText = row.querySelector('td:nth-child(2) .chat-text').innerHTML;
+        const assistantText = row.querySelector('td:nth-child(3) .chat-text').innerHTML;
+        
+        // Store content for popup display
+        window.chatContent['user-' + (index + 1)] = {
+          title: 'User Message #' + (index + 1),
+          content: userText
+        };
+        
+        window.chatContent['assistant-' + (index + 1)] = {
+          title: 'Assistant Message #' + (index + 1),
+          content: assistantText
+        };
+      });
+    }
+    
+    // Function to show popup with chat content
+    function showPopup(id) {
+      const popup = document.getElementById('text-popup');
+      const popupContent = document.getElementById('popup-content');
+      const popupTitle = document.querySelector('#text-popup h3');
+      
+      if (window.chatContent && window.chatContent[id]) {
+        popupTitle.textContent = window.chatContent[id].title;
+        popupContent.innerHTML = window.chatContent[id].content;
+        popup.classList.add('active');
+      }
+    }
+    
+    // Function to hide popup
+    function hidePopup() {
+      const popup = document.getElementById('text-popup');
+      popup.classList.remove('active');
+    }
+    
+    // Function to change view between chat and table
+    function changeView(viewMode) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const isLower = urlParams.get("lower") === "1" ? "1" : "0";
+      
+      window.location.href = "?lower=" + isLower + "&view=" + viewMode;
+    }
+    
+    AOS.init({
+      duration: 1000, // Durasi animasi dalam ms
+      easing: "ease-in-out", // Efek transisi
+      once: true, // Animasi hanya muncul sekali
+    });
+    
+    document.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll("pre code").forEach((block) => {
+        hljs.highlightBlock(block);
+      });
+    });
+    
+    document.addEventListener("DOMContentLoaded", function () {
+      // Format code blocks to prevent HTML rendering
+      formatCodeBlocks();
+
+      // Your existing page load code here...
+    });
+
+    function formatCodeBlocks() {
+      // Find all assistant message content
+      const assistantMessages = document.querySelectorAll(
+        '[data-message-author-role="assistant"]'
+      );
+
+      assistantMessages.forEach((message) => {
+        // Find any code blocks within the message
+        const codeBlocks = message.querySelectorAll("pre");
+
+        codeBlocks.forEach((codeBlock) => {
+          // Get the raw code content
+          const codeContent = codeBlock.innerHTML;
+
+          // Clear the existing content
+          codeBlock.innerHTML = "";
+
+          // Create a code element with the content as text, not HTML
+          const codeElement = document.createElement("code");
+          codeElement.textContent = codeContent; // Use textContent to avoid HTML parsing
+
+          // Add back to the pre element
+          codeBlock.appendChild(codeElement);
+
+          // Add Tailwind classes for styling
+          codeBlock.className =
+            "bg-gray-100 rounded-md p-4 my-4 whitespace-pre-wrap font-mono overflow-x-auto text-sm";
+          codeElement.className = "block font-mono text-gray-800";
+        });
+      });
+    }
+    
+    // Close popup when clicking outside of content
+    document.getElementById('text-popup').addEventListener('click', function(event) {
+      if (event.target === this) {
+        hidePopup();
+      }
+    });
+    
+    // Close popup when pressing Escape key
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        hidePopup();
+      }
     });
   </script>
   <script>

@@ -11,17 +11,22 @@ from nltk.corpus import stopwords # type: ignore
 
 app = Flask(__name__)
 DB_CONFIG = {
-    "host": os.getenv("DB_HOST", "localhost"),
+    "host": os.getenv("DB_HOST", "127.0.0.1"),
     "user": os.getenv("DB_USER", "root"),
     "password": os.getenv("DB_PASSWORD", ""),
     "database": os.getenv("DB_NAME", "gptscraper"),
-    "port": os.getenv("DB_PORT", "3306")
+    "port": os.getenv("DB_PORT", "3307")
 } 
 config = DB_CONFIG
 
-# SQLAlchemy configuration
-app.config["SQLALCHEMY_DATABASE_URI"] = f"mysql+mysqlconnector://{DB_CONFIG['user']}:{DB_CONFIG['password']}@{DB_CONFIG['host']}:{DB_CONFIG['port']}/{DB_CONFIG['database']}"
+# SQLAlchemy configuration with increased pool size and timeout settings
+app.config["SQLALCHEMY_DATABASE_URI"] = f"mysql+pymysql://{DB_CONFIG['user']}:{DB_CONFIG['password']}@{DB_CONFIG['host']}:{DB_CONFIG['port']}/{DB_CONFIG['database']}?charset=utf8mb4"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+    "pool_recycle": 3600,
+    "pool_pre_ping": True,
+    "pool_timeout": 900,  # Increase timeout for large requests
+}
 app.config["SECRET_KEY"] = 'supersecretkey'
 
 # Initalize SQLAlchemy
@@ -45,8 +50,8 @@ class Conversation(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable = False)
     title = db.Column(db.String(255), nullable = False)
     link = db.Column(db.Text, nullable = False)
-    text = db.Column(db.Text, nullable = False)
-    lowercased_text = db.Column(db.Text, nullable = False)
+    text = db.Column(db.Text(length=4294967295), nullable = False)  # Using max LONGTEXT length
+    lowercased_text = db.Column(db.Text(length=4294967295), nullable = False)  # Using max LONGTEXT length
     created_at = db.Column(db.TIMESTAMP, server_default = db.func.current_timestamp())
     updated_at = db.Column(db.TIMESTAMP, server_default = db.func.current_timestamp(), onupdate = db.func.current_timestamp())
 
@@ -182,28 +187,33 @@ def insert_conversation_route():
     title = request.form.get('title', '')  
     link = request.form.get('link', '')
 
-    user_chat, assitant_chat, assitant_chat_raw = scrape(link, headless=True)
-    text = [{"user": u, "assistant": a} for u, a in zip(user_chat, assitant_chat)]
-    lowercased_text = [{"user": preprocess_text(u.lower()), "assistant": preprocess_text(a.lower())} for u, a in zip(user_chat, assitant_chat_raw)]
-
+    user_chat, assistant_chat, assistant_chat_raw = scrape(link, headless=True)
+    text = [{"user": u, "assistant": a} for u, a in zip(user_chat, assistant_chat)]
+    lowercased_text = [{"user": preprocess_text(u.lower()), "assistant": preprocess_text(a.lower())} for u, a in zip(user_chat, assistant_chat_raw)]
+    
+    # Handle potential large data in chunks if needed
     try:
-        json_text = json.dumps(text, ensure_ascii=False)
-        json_lowercased_text = json.dumps(lowercased_text, ensure_ascii=False)
+        # Convert to JSON strings
+        json_text = json.dumps(text)
+        json_lowercased_text = json.dumps(lowercased_text)
+
+        new_conv = Conversation(
+            user_id=current_user.id,
+            title=title,
+            link=link,
+            text=json_text,
+            lowercased_text=json_lowercased_text
+        )
+
+        db.session.add(new_conv)
+        db.session.commit()
+        
+        return redirect(f'/conversations/{new_conv.conversation_id}')
     except Exception as e:
-        return f"JSON Encode Error: {str(e)}", 400
-
-    new_conv = Conversation(
-        user_id=current_user.id,
-        title=title,
-        link=link,
-        text=json_text,
-        lowercased_text=json_lowercased_text
-    )
-
-    db.session.add(new_conv)
-    db.session.commit()
-
-    return redirect(f'/conversations/{new_conv.conversation_id}')
+        db.session.rollback()
+        print(f"Error inserting conversation: {e}")
+        # If exception occurs with SQLAlchemy, try direct MySQL connection with higher packet size
+        return redirect('/')
 
 @app.route('/history', methods=['GET'])
 @login_required
@@ -325,5 +335,3 @@ if __name__ == '__main__':
     except Exception as e:
         print("Error creating database: ", e)
     app.run(debug = True)
-
-

@@ -6,63 +6,63 @@ import time
 from json import dumps
 from bs4 import BeautifulSoup # type: ignore
 
-def scrape(url, timeout = 1000, headless = False):
-  """
-    input: 
-      url: url of the conversation
-      timeout: time to wait until the page is loaded
-    output:
-      user_chat: list of user chat
-      assistant_chat: list of assistant chat
-  """
-  # Headless browser
-  options = webdriver.ChromeOptions()
-  options.add_argument('--headless')
+def scrape(url, timeout=1000, headless=False):
+    # Headless browser
+    options = webdriver.ChromeOptions()
+    options.add_argument('--headless')
 
-  driver = webdriver.Chrome() if not headless else webdriver.Chrome(options = options)
-
-  driver.get(url)
-  try:
-    # Wait until chat elements has been loaded
-    WebDriverWait(driver, timeout).until(
-        EC.presence_of_all_elements_located((By.CSS_SELECTOR, 'div[data-message-author-role="user"]'))
-    )
-    WebDriverWait(driver, timeout).until(
-        EC.presence_of_all_elements_located((By.CSS_SELECTOR, 'div[data-message-author-role="assistant"]'))
-    )
-    print("Page loaded")
-  except:
-    print("Timeout")
-  
-  html = driver.page_source
-  soup = BeautifulSoup(html, 'html.parser')
-
-  # Get all chat elements with user and assistant roles
-  user_chat_elements = soup.find_all('div', attrs={'data-message-author-role': 'user'})
-  assistant_chat_elements = soup.find_all('div', attrs={'data-message-author-role': 'assistant'})
-
-  # Close the browser
-  driver.quit()
-
-  user_chat = [chat.get_text() for chat in user_chat_elements]
-  assistant_chat = [str(chat) for chat in assistant_chat_elements]
-  assistant_chat_raw = [chat.get_text() for chat in assistant_chat_elements]
-
-  max_retries = 3
-  retries = 0
-  while retries < max_retries and not user_chat:
-    print(f"Retrying... {retries + 1}")
-    time.sleep(2)
-    html = driver.page_source
-    soup = BeautifulSoup(html, 'html.parser')
-    user_chat_elements = soup.find_all('div', attrs={'data-message-author-role': 'user'})
-    assistant_chat_elements = soup.find_all('div', attrs={'data-message-author-role': 'assistant'})
-    user_chat = [chat.get_text() for chat in user_chat_elements]
-    assistant_chat = [str(chat) for chat in assistant_chat_elements]
-    assistant_chat_raw = [chat.get_text() for chat in assistant_chat_elements]
-    retries += 1
-  
-  return user_chat, assistant_chat, assistant_chat_raw
+    driver = webdriver.Chrome() if not headless else webdriver.Chrome(options=options)
+    
+    driver.get(url)
+    max_retries = 3
+    retries = 0
+    
+    user_chat = []
+    assistant_chat = []
+    assistant_chat_raw = []
+    
+    while retries <= max_retries and not user_chat:
+        try:
+            # Wait until chat elements have been loaded
+            WebDriverWait(driver, timeout).until(
+                EC.presence_of_all_elements_located((By.CSS_SELECTOR, 'div[data-message-author-role="user"]'))
+            )
+            WebDriverWait(driver, timeout).until(
+                EC.presence_of_all_elements_located((By.CSS_SELECTOR, 'div[data-message-author-role="assistant"]'))
+            )
+            print("Page loaded")
+            
+            html = driver.page_source
+            soup = BeautifulSoup(html, 'html.parser')
+            
+            # Get all chat elements with user and assistant roles
+            user_chat_elements = soup.find_all('div', attrs={'data-message-author-role': 'user'})
+            assistant_chat_elements = soup.find_all('div', attrs={'data-message-author-role': 'assistant'})
+            
+            user_chat = [chat.get_text() for chat in user_chat_elements]
+            assistant_chat = [str(chat) for chat in assistant_chat_elements]
+            assistant_chat_raw = [chat.get_text() for chat in assistant_chat_elements]
+            
+            if not user_chat and retries < max_retries:
+                print(f"No chats found. Retrying... {retries + 1}")
+                time.sleep(2)
+                retries += 1
+            else:
+                break
+                
+        except Exception as e:
+            print(f"Error: {e}")
+            if retries < max_retries:
+                print(f"Retrying... {retries + 1}")
+                time.sleep(2)
+                retries += 1
+            else:
+                break
+    
+    # Close the browser after all attempts
+    driver.quit()
+    
+    return user_chat, assistant_chat, assistant_chat_raw
 
 if __name__ == '__main__':
   url = "https://chatgpt.com/share/67b5c1df-0848-8010-991c-261f15462e5a"
